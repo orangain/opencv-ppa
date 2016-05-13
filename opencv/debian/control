@@ -1200,7 +1200,7 @@ Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends},
-	libvtk6,
+	libvtk6.2,
 	libopencv-core3.0 (= ${binary:Version})
 Description: computer vision 3D data visualization library
  This package contains the OpenCV (Open Computer Vision) 3D data visualization

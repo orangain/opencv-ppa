@@ -1,3 +1,9 @@
+opencv (3.0.0+dfsg-1ubuntu1ppa6) xenial; urgency=medium
+
+  * Fix dependecy problem of libopencv-viz3.0 on xenial. 
+
+ -- Kota Kato (orangain) <orangain@gmail.com>  Fri, 13 May 2016 14:03:42 +0000
+
 opencv (3.0.0+dfsg-1ubuntu1ppa5) xenial; urgency=medium
 
   * Support 16.04
