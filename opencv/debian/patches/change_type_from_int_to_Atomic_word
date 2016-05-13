@@ -1,0 +1,171 @@
+Description: Fix FTBFS on sparc64
+Author: Aurelien Jarno <aurel32@debian.org>
+Forwarded: not yet
+Debian-Bug: 714923
+Last-Update: <2015-04-27>
+
+diff --git a/modules/core/include/opencv2/core/core.hpp b/modules/core/include/opencv2/core/core.hpp
+index 67905ec..6dc8eeb 100644
+--- a/modules/core/include/opencv2/core/core.hpp
++++ b/modules/core/include/opencv2/core/core.hpp
+@@ -1293,7 +1293,7 @@ public:
+     operator const _Tp*() const;
+ 
+     _Tp* obj; //< the object pointer.
+-    int* refcount; //< the associated reference counter
++    _Atomic_word* refcount; //< the associated reference counter
+ };
+ 
+ template<typename T>
+@@ -1493,9 +1493,9 @@ class CV_EXPORTS MatAllocator
+ public:
+     MatAllocator() {}
+     virtual ~MatAllocator() {}
+-    virtual void allocate(int dims, const int* sizes, int type, int*& refcount,
++    virtual void allocate(int dims, const int* sizes, int type, _Atomic_word*& refcount,
+                           uchar*& datastart, uchar*& data, size_t* step) = 0;
+-    virtual void deallocate(int* refcount, uchar* datastart, uchar* data) = 0;
++    virtual void deallocate(_Atomic_word* refcount, uchar* datastart, uchar* data) = 0;
+ };
+ 
+ /*!
+@@ -1988,7 +1988,7 @@ public:
+ 
+     //! pointer to the reference counter;
+     // when matrix points to user-allocated data, the pointer is NULL
+-    int* refcount;
++    _Atomic_word* refcount;
+ 
+     //! helper fields used in locateROI and adjustROI
+     uchar* datastart;
+@@ -3411,7 +3411,7 @@ public:
+     {
+         Hdr(int _dims, const int* _sizes, int _type);
+         void clear();
+-        int refcount;
++        _Atomic_word refcount;
+         int dims;
+         int valueOffset;
+         size_t nodeSize;
+diff --git a/modules/core/include/opencv2/core/gpumat.hpp b/modules/core/include/opencv2/core/gpumat.hpp
+index 68647d9..d488c27 100644
+--- a/modules/core/include/opencv2/core/gpumat.hpp
++++ b/modules/core/include/opencv2/core/gpumat.hpp
+@@ -301,7 +301,7 @@ namespace cv { namespace gpu
+ 
+         //! pointer to the reference counter;
+         // when GpuMatrix points to user-allocated data, the pointer is NULL
+-        int* refcount;
++        _Atomic_word* refcount;
+ 
+         //! helper fields used in locateROI and adjustROI
+         uchar* datastart;
+diff --git a/modules/core/include/opencv2/core/operations.hpp b/modules/core/include/opencv2/core/operations.hpp
+index 0ae51c6..f18221a 100644
+--- a/modules/core/include/opencv2/core/operations.hpp
++++ b/modules/core/include/opencv2/core/operations.hpp
+@@ -2282,7 +2282,7 @@ public:
+         Hdr() : data(0), datastart(0), refcount(0), size(0), capacity(0) {};
+         _Tp* data;
+         _Tp* datastart;
+-        int* refcount;
++        _Atomic_word* refcount;
+         size_t size;
+         size_t capacity;
+     };
+@@ -2589,7 +2589,7 @@ template<typename _Tp> inline Ptr<_Tp>::Ptr(_Tp* _obj) : obj(_obj)
+ {
+     if(obj)
+     {
+-        refcount = (int*)fastMalloc(sizeof(*refcount));
++        refcount = (_Atomic_word*)fastMalloc(sizeof(*refcount));
+         *refcount = 1;
+     }
+     else
+@@ -2628,7 +2628,7 @@ template<typename _Tp> inline Ptr<_Tp>& Ptr<_Tp>::operator = (const Ptr<_Tp>& _p
+ {
+     if (this != &_ptr)
+     {
+-      int* _refcount = _ptr.refcount;
++      _Atomic_word* _refcount = _ptr.refcount;
+       if( _refcount )
+           CV_XADD(_refcount, 1);
+       release();
+diff --git a/modules/core/src/gpumat.cpp b/modules/core/src/gpumat.cpp
+index 9669191..0bd2568 100644
+--- a/modules/core/src/gpumat.cpp
++++ b/modules/core/src/gpumat.cpp
+@@ -716,7 +716,7 @@ void cv::gpu::GpuMat::create(int _rows, int _cols, int _type)
+         datastart = data = static_cast<uchar*>(devPtr);
+         dataend = data + nettosize;
+ 
+-        refcount = static_cast<int*>(fastMalloc(sizeof(*refcount)));
++        refcount = static_cast<_Atomic_word*>(fastMalloc(sizeof(*refcount)));
+         *refcount = 1;
+     }
+ }
+diff --git a/modules/core/src/matrix.cpp b/modules/core/src/matrix.cpp
+index 8e32b0f..311d758 100644
+--- a/modules/core/src/matrix.cpp
++++ b/modules/core/src/matrix.cpp
+@@ -213,7 +213,7 @@ void Mat::create(int d, const int* _sizes, int _type)
+         {
+             size_t totalsize = alignSize(step.p[0]*size.p[0], (int)sizeof(*refcount));
+             data = datastart = (uchar*)fastMalloc(totalsize + (int)sizeof(*refcount));
+-            refcount = (int*)(data + totalsize);
++            refcount = (_Atomic_word*)(data + totalsize);
+             *refcount = 1;
+         }
+         else
+diff --git a/modules/gpu/include/opencv2/gpu/gpu.hpp b/modules/gpu/include/opencv2/gpu/gpu.hpp
+index de16982..266fa2f 100644
+--- a/modules/gpu/include/opencv2/gpu/gpu.hpp
++++ b/modules/gpu/include/opencv2/gpu/gpu.hpp
+@@ -125,7 +125,7 @@ public:
+     size_t step;
+ 
+     uchar* data;
+-    int* refcount;
++    _Atomic_word* refcount;
+ 
+     uchar* datastart;
+     uchar* dataend;
+diff --git a/modules/python/src2/cv2.cpp b/modules/python/src2/cv2.cpp
+index 8a0aa09..0cef61a 100644
+--- a/modules/python/src2/cv2.cpp
++++ b/modules/python/src2/cv2.cpp
+@@ -157,14 +157,14 @@ static PyObject* failmsgp(const char *fmt, ...)
+ static size_t REFCOUNT_OFFSET = (size_t)&(((PyObject*)0)->ob_refcnt) +
+     (0x12345678 != *(const size_t*)"\x78\x56\x34\x12\0\0\0\0\0")*sizeof(int);
+ 
+-static inline PyObject* pyObjectFromRefcount(const int* refcount)
++static inline PyObject* pyObjectFromRefcount(const _Atomic_word* refcount)
+ {
+     return (PyObject*)((size_t)refcount - REFCOUNT_OFFSET);
+ }
+ 
+ static inline int* refcountFromPyObject(const PyObject* obj)
+ {
+-    return (int*)((size_t)obj + REFCOUNT_OFFSET);
++    return (_Atomic_word*)((size_t)obj + REFCOUNT_OFFSET);
+ }
+ 
+ class NumpyAllocator : public MatAllocator
+@@ -173,7 +173,7 @@ public:
+     NumpyAllocator() {}
+     ~NumpyAllocator() {}
+ 
+-    void allocate(int dims, const int* sizes, int type, int*& refcount,
++    void allocate(int dims, const int* sizes, int type, _Atomic_word*& refcount,
+                   uchar*& datastart, uchar*& data, size_t* step)
+     {
+         PyEnsureGIL gil;
+@@ -206,7 +206,7 @@ public:
+         datastart = data = (uchar*)PyArray_DATA((PyArrayObject*) o);
+     }
+ 
+-    void deallocate(int* refcount, uchar*, uchar*)
++    void deallocate(_Atomic_word* refcount, uchar*, uchar*)
+     {
+         PyEnsureGIL gil;
+         if( !refcount )

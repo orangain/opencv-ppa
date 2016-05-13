@@ -1,0 +1,28 @@
+Description: Support build static libraries
+Author: Nobuhiro Iwamatsu <iwamatsu@debian.org>
+Forwarded: no
+Last-Update: <2015-04-27>
+
+diff --git a/cmake/OpenCVModule.cmake b/cmake/OpenCVModule.cmake
+index a1a1b90..059fed3 100644
+--- a/cmake/OpenCVModule.cmake
++++ b/cmake/OpenCVModule.cmake
+@@ -133,6 +133,7 @@ macro(ocv_add_module _name)
+   ocv_debug_message("ocv_add_module(" ${_name} ${ARGN} ")")
+   string(TOLOWER "${_name}" name)
+   set(the_module opencv_${name})
++  set(the_module_s opencv_${name}_s)
+ 
+   # the first pass - collect modules info, the second pass - create targets
+   if(OPENCV_INITIAL_PASS)
+@@ -720,6 +721,10 @@ macro(_ocv_create_module)
+     "${OPENCV_CONFIG_FILE_INCLUDE_DIR}/cvconfig.h" "${OPENCV_CONFIG_FILE_INCLUDE_DIR}/opencv2/opencv_modules.hpp"
+     ${${the_module}_pch} ${sub_objs})
+ 
++  add_library(${the_module_s} STATIC ${OPENCV_MODULE_${the_module}_HEADERS} ${OPENCV_MODULE_${the_module}_SOURCES}
++    "${OPENCV_CONFIG_FILE_INCLUDE_DIR}/cvconfig.h" "${OPENCV_CONFIG_FILE_INCLUDE_DIR}/opencv2/opencv_modules.hpp"
++    ${${the_module}_pch} ${sub_objs})
++
+   if (cuda_objs)
+     target_link_libraries(${the_module} ${cuda_objs})
+   endif()

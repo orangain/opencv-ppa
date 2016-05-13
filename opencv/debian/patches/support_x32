@@ -1,0 +1,40 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -499,8 +499,11 @@
+   else()
+     set(HAVE_LIBPTHREAD YES)
+   endif()
++
++  CHECK_INCLUDE_FILE(sys/sysctl.h HAVE_SYS_SYSCTL_H)
+ endif()
+ 
++
+ include(cmake/OpenCVPCHSupport.cmake)
+ include(cmake/OpenCVModule.cmake)
+ 
+--- a/modules/core/src/parallel.cpp
++++ b/modules/core/src/parallel.cpp
+@@ -58,6 +58,10 @@
+         #include <sys/sysconf.h>
+     #elif defined __APPLE__
+         #include <sys/sysctl.h>
++    #elif !defined __GNU__
++      #ifdef HAVE_SYS_SYSCTL_H
++         #include <sys/sysctl.h>
++      #endif
+     #endif
+ #endif
+ 
+--- a/modules/videoio/src/cap_ffmpeg_impl.hpp
++++ b/modules/videoio/src/cap_ffmpeg_impl.hpp
+@@ -141,6 +141,10 @@
+     #include <sys/types.h>
+ #if defined __APPLE__
+     #include <sys/sysctl.h>
++#elif !defined __GNU__
++    #ifdef HAVE_SYS_SYSCTL_H
++        #include <sys/sysctl.h>
++    #endif
+ #endif
+ #endif
+ 

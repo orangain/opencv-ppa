@@ -1,0 +1,4 @@
+usr/include/opencv2/videoio/*
+usr/include/opencv2/videoio.hpp
+usr/lib/*/libopencv_videoio.a
+usr/lib/*/libopencv_videoio.so

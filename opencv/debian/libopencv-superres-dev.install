@@ -1,0 +1,4 @@
+usr/include/opencv2/superres/*
+usr/include/opencv2/superres.hpp
+usr/lib/*/libopencv_superres.a
+usr/lib/*/libopencv_superres.so
