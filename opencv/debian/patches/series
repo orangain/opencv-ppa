@@ -8,3 +8,4 @@ support_multiarch
 #fix_path_of_opencl_headers
 #libav10.patch
 optimize_i586.patch
+prefer_python3.5.patch

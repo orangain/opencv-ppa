@@ -1,3 +1,9 @@
+opencv (3.0.0+dfsg-1ubuntu1ppa5) xenial; urgency=medium
+
+  * Support 16.04
+
+ -- Kota Kato (orangain) <orangain@gmail.com>  Sat, 23 Apr 2016 21:41:01 +0900
+
 opencv (3.0.0+dfsg-1ubuntu1ppa4) trusty; urgency=medium
 
   * May fix build error on i386 environment.
