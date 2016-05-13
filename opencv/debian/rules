@@ -70,7 +70,7 @@ CMAKE_FLAGS = \
 	$(CMAKE_ARCH_FLAGS) 
 
 %:
-	dh $@ --buildsystem=cmake --with python2 --with javahelper --parallel
+	dh $@ --buildsystem=cmake --with python2 --with python3 --with javahelper --parallel
 
 override_dh_clean:
 	rm -rf modules/python/src2/hdr_parser.pyc
@@ -102,6 +102,22 @@ build_dyn:
 
 build_static:
 	dh_auto_build -B obj-$(BUILDDIR_ARCH)-static
+
+override_dh_auto_test: test_dyn test_static
+
+test_dyn:
+	dh_auto_test -B obj-$(BUILDDIR_ARCH)
+
+test_static:
+	dh_auto_test -B obj-$(BUILDDIR_ARCH)-static
+
+override_dh_auto_install: install_dyn install_static
+
+install_dyn:
+	dh_auto_install -B obj-$(BUILDDIR_ARCH)
+
+install_static:
+	dh_auto_install -B obj-$(BUILDDIR_ARCH)-static
 
 override_dh_install:
 	-rm --verbose -rf debian/tmp/usr/share/opencv/samples/octave

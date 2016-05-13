@@ -8,4 +8,3 @@ support_multiarch
 #fix_path_of_opencl_headers
 #libav10.patch
 optimize_i586.patch
-support_x32

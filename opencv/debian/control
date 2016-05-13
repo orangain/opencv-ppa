@@ -1,7 +1,8 @@
 Source: opencv
 Priority: optional
 Section: devel
-Maintainer: Debian Science Team <debian-science-maintainers@lists.alioth.debian.org>
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+XSBC-Original-Maintainer: Debian Science Team <debian-science-maintainers@lists.alioth.debian.org>
 Uploaders: Sam Hocevar (Debian packages) <sam+deb@zoy.org>,
 		Nobuhiro Iwamatsu <iwamatsu@debian.org>
 Build-Depends: debhelper (>= 9),
@@ -12,7 +13,7 @@ Build-Depends: debhelper (>= 9),
  libjpeg-dev,
  libpng-dev,
  libtiff-dev,
- libopenexr-dev (>= 1.6.1-8.1),
+ libopenexr-dev (>= 1.4.0),
  libraw1394-dev [linux-any],
  libdc1394-22-dev [linux-any],
  libv4l-dev [linux-any],
@@ -26,6 +27,8 @@ Build-Depends: debhelper (>= 9),
  python-dev,
  dh-python,
  python-numpy,
+ python3-dev,
+ python3-numpy,
  doxygen,
  ant, default-jdk, javahelper
 Standards-Version: 3.9.6
@@ -1197,7 +1200,7 @@ Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends},
-	libvtk6.2,
+	libvtk6,
 	libopencv-core3.0 (= ${binary:Version})
 Description: computer vision 3D data visualization library
  This package contains the OpenCV (Open Computer Vision) 3D data visualization
@@ -1302,6 +1305,42 @@ Replaces: python2.3-opencv (<= 0.9.7-3)
 Conflicts: python2.3-opencv (<= 0.9.7-3)
 Description: Python bindings for the computer vision library
  This package contains Python bindings for the OpenCV (Open Computer Vision)
+ library.
+ .
+ The Open Computer Vision Library is a collection of algorithms and sample
+ code for various computer vision problems. The library is compatible with
+ IPL (Intel's Image Processing Library) and, if available, can use IPP
+ (Intel's Integrated Performance Primitives) for better performance.
+ .
+ OpenCV provides low level portable data types and operators, and a set
+ of high level functionalities for video acquisition, image processing and
+ analysis, structural analysis, motion analysis and object tracking, object
+ recognition, camera calibration and 3D reconstruction.
+
+Package: python3-opencv
+Section: python
+Architecture: any
+Depends: ${python3:Depends}, ${shlibs:Depends}, ${misc:Depends}, python3-numpy-abi9,
+	python3-numpy (>= 1:1.6.1),
+	libopencv-viz3.0 (= ${binary:Version}),
+	libopencv-shape3.0 (= ${binary:Version}),
+	libopencv-superres3.0 (= ${binary:Version}),
+	libopencv-stitching3.0 (= ${binary:Version}),
+	libopencv-videostab3.0 (= ${binary:Version}),
+	libopencv-objdetect3.0 (= ${binary:Version}),
+	libopencv-photo3.0 (= ${binary:Version}),
+	libopencv-video3.0 (= ${binary:Version}),
+	libopencv-calib3d3.0 (= ${binary:Version}),
+	libopencv-features2d3.0 (= ${binary:Version}),
+	libopencv-flann3.0 (= ${binary:Version}),
+	libopencv-ml3.0 (= ${binary:Version}),
+	libopencv-highgui3.0 (= ${binary:Version}),
+	libopencv-videoio3.0 (= ${binary:Version}),
+	libopencv-imgcodecs3.0 (= ${binary:Version}),
+	libopencv-imgproc3.0 (= ${binary:Version})
+Provides: ${python3:Provides}
+Description: Python 3 bindings for the computer vision library
+ This package contains Python 3 bindings for the OpenCV (Open Computer Vision)
  library.
  .
  The Open Computer Vision Library is a collection of algorithms and sample
