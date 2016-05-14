@@ -3,3 +3,9 @@
 /.vagrant/
 /*.build
 /*.orig.tar.xz
+/*.deb
+/*.dsc
+/*.changes
+/*.debian.tar.xz
+/*.ppa.upload
+/*.log
