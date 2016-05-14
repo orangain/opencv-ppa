@@ -31,7 +31,7 @@ $ debuild -b -rfakeroot -uc -us
 ### Release
 
 ```
-$ dch -U -D xenial  # Then write release notes in your editor
+$ dch -U -D trusty  # Then write release notes in your editor
 $ git add . ; git commit ; git tag ubuntu/ppaN
 $ debuild -S -sa  # GPG key is required
 $ dput ppa:orangain/opencv ../opencv_3.0.0+dfsg-1ubuntu1ppaN_source.changes
@@ -46,7 +46,7 @@ $ ./docker_run.sh debuild -b -rfakeroot -uc -us
 ### Release with Docker
 
 ```
-$ ./docker_run.sh dch -U -D xenial  # Then write release notes in your editor
+$ ./docker_run.sh dch -U -D trusty  # Then write release notes in your editor
 $ git add . ; git commit ; git tag ubuntu/xenial-ppaN
 $ ./docker_run.sh debuild -S -sa  # GPG key is required
 $ ./docker_run.sh dput ppa:orangain/opencv ../opencv_3.0.0+dfsg-1ubuntu1ppaN_source.changes
